@@ -1,4 +1,4 @@
-package com.example.mediasearchdemo
+package com.example.mediasearchdemo.fileSelector
 
 import android.database.Cursor
 import android.os.Bundle
@@ -7,10 +7,12 @@ import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
+import com.example.mediasearchdemo.bean.FileBean
+import com.example.mediasearchdemo.bean.FileFolderBean
 import java.io.File
 import java.util.*
 
-object MediaStoreUtils {
+object LoadManagerUtils {
 
     /**
      * 纯文本
@@ -53,6 +55,18 @@ object MediaStoreUtils {
      * （Microsoft Word文件）
      */
     const val WORD = "application/msword";
+    val WORDS = listOf(
+            "application/msword",
+            "application/doc",
+            "appl/text",
+            "application/vnd.msword",
+            "application/vnd.ms-word",
+            "application/winword",
+            "application/word",
+            "application/x-msw6",
+            "application/x-msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
     /**
      * （RFC 822形式）
      */
@@ -84,7 +98,7 @@ object MediaStoreUtils {
     private const val ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC"
     private const val type = 1
 
-    fun loadMedia(activity: AppCompatActivity, mediaType: Array<String>, body: (List<MediaFolderBean>) -> Unit) {
+    fun loadMedia(activity: AppCompatActivity, mediaType: Array<String>, body: (List<FileFolderBean>) -> Unit) {
         var selection = SELECTION
         if (mediaType.size > 1) {
             mediaType.forEachIndexed { index, s ->
@@ -96,14 +110,20 @@ object MediaStoreUtils {
 
         LoaderManager.getInstance(activity).initLoader(type, null, object : LoaderManager.LoaderCallbacks<Cursor> {
             override fun onCreateLoader(p0: Int, p1: Bundle?): Loader<Cursor> {
-                return CursorLoader(activity, QUERY_URI,
-                        PROJECTION, selection, mediaType, ORDER_BY)
+                return CursorLoader(
+                        activity,  //上下文
+                        QUERY_URI, //要访问数据库的 uri地址
+                        PROJECTION, //对应于数据库语句里的某列，如果只需要访问某几列，则传入这几列的名字即可，如果不传， 则默认访问全部数据
+                        selection, // 筛选条件
+                        mediaType, // 传入具体的参数，会替换上述 selection中的？
+                        ORDER_BY   // 排序规则， 可以为空
+                )
             }
 
             override fun onLoadFinished(p0: Loader<Cursor>, cursor: Cursor?) {
                 try {
-                    val folderBeanList = ArrayList<MediaFolderBean>()
-                    val mediaBeanList = ArrayList<MediaBean>()
+                    val folderBeanList = ArrayList<FileFolderBean>()
+                    val mediaBeanList = ArrayList<FileBean>()
                     cursor?.let {
                         if (it.count > 0) {
                             it.moveToFirst()
@@ -113,12 +133,12 @@ object MediaStoreUtils {
                                 val parentPath = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED))
                                 val type = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
                                 val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
-                                val bean = MediaBean(title, data, parentPath, type, size)
+                                val bean = FileBean(title, data, parentPath, type, size)
                                 mediaFolder(bean, folderBeanList)
                                 mediaBeanList.add(bean)
                             } while (it.moveToNext())
                             if (mediaBeanList.size > 0) {
-                                val bean = MediaFolderBean()
+                                val bean = FileFolderBean()
                                 bean.children = mediaBeanList
                                 bean.name = "文档"
                                 folderBeanList.add(0, bean)
@@ -138,7 +158,7 @@ object MediaStoreUtils {
         })
     }
 
-    private fun mediaFolder(bean: MediaBean, folderBeanList: MutableList<MediaFolderBean>) {
+    private fun mediaFolder(bean: FileBean, folderBeanList: MutableList<FileFolderBean>) {
         if (bean.path != null) {
             val file = File(bean.path)
             val folderFile = file.parentFile
@@ -148,7 +168,7 @@ object MediaStoreUtils {
                     return
                 }
             }
-            val folderBean = MediaFolderBean()
+            val folderBean = FileFolderBean()
             folderBean.name = folderFile.name
             folderBean.path = folderFile.path
             folderBean.children.add(bean)

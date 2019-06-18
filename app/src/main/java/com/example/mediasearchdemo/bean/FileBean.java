@@ -1,9 +1,9 @@
-package com.example.mediasearchdemo;
+package com.example.mediasearchdemo.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MediaBean implements Parcelable {
+public class FileBean implements Parcelable {
 
     private String name;
     private String path;
@@ -11,7 +11,7 @@ public class MediaBean implements Parcelable {
     private String mimeType;
     private long size;
 
-    public MediaBean(String name, String path, long createTime, String mimeType, long size) {
+    public FileBean(String name, String path, long createTime, String mimeType, long size) {
         this.name = name;
         this.path = path;
         this.createTime = createTime;
@@ -74,10 +74,10 @@ public class MediaBean implements Parcelable {
         dest.writeLong(this.size);
     }
 
-    public MediaBean() {
+    public FileBean() {
     }
 
-    protected MediaBean(Parcel in) {
+    protected FileBean(Parcel in) {
         this.name = in.readString();
         this.path = in.readString();
         this.createTime = in.readLong();
@@ -85,15 +85,15 @@ public class MediaBean implements Parcelable {
         this.size = in.readLong();
     }
 
-    public static final Creator<MediaBean> CREATOR = new Creator<MediaBean>() {
+    public static final Creator<FileBean> CREATOR = new Creator<FileBean>() {
         @Override
-        public MediaBean createFromParcel(Parcel source) {
-            return new MediaBean(source);
+        public FileBean createFromParcel(Parcel source) {
+            return new FileBean(source);
         }
 
         @Override
-        public MediaBean[] newArray(int size) {
-            return new MediaBean[size];
+        public FileBean[] newArray(int size) {
+            return new FileBean[size];
         }
     };
 }

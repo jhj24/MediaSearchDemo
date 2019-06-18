@@ -1,4 +1,4 @@
-package com.example.mediasearchdemo;
+package com.example.mediasearchdemo.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,13 +6,11 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.contracts.Returns;
-
-public class MediaFolderBean implements Parcelable {
+public class FileFolderBean implements Parcelable {
 
     private String name;
     private String path;
-    private List<MediaBean> children = new ArrayList<>();
+    private List<FileBean> children = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -30,14 +28,14 @@ public class MediaFolderBean implements Parcelable {
         this.path = path;
     }
 
-    public List<MediaBean> getChildren() {
+    public List<FileBean> getChildren() {
         if (children == null) {
-            return new ArrayList<MediaBean>();
+            return new ArrayList<FileBean>();
         }
         return children;
     }
 
-    public void setChildren(List<MediaBean> children) {
+    public void setChildren(List<FileBean> children) {
         this.children = children;
     }
 
@@ -53,24 +51,24 @@ public class MediaFolderBean implements Parcelable {
         dest.writeTypedList(this.children);
     }
 
-    public MediaFolderBean() {
+    public FileFolderBean() {
     }
 
-    protected MediaFolderBean(Parcel in) {
+    protected FileFolderBean(Parcel in) {
         this.name = in.readString();
         this.path = in.readString();
-        this.children = in.createTypedArrayList(MediaBean.CREATOR);
+        this.children = in.createTypedArrayList(FileBean.CREATOR);
     }
 
-    public static final Creator<MediaFolderBean> CREATOR = new Creator<MediaFolderBean>() {
+    public static final Creator<FileFolderBean> CREATOR = new Creator<FileFolderBean>() {
         @Override
-        public MediaFolderBean createFromParcel(Parcel source) {
-            return new MediaFolderBean(source);
+        public FileFolderBean createFromParcel(Parcel source) {
+            return new FileFolderBean(source);
         }
 
         @Override
-        public MediaFolderBean[] newArray(int size) {
-            return new MediaFolderBean[size];
+        public FileFolderBean[] newArray(int size) {
+            return new FileFolderBean[size];
         }
     };
 }
